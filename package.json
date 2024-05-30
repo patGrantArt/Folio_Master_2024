@@ -4,6 +4,7 @@
   "description": "\"seed project for Folio Web Dev\"",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "\"Pat Grant 0431088169\"",

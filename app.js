@@ -6,7 +6,7 @@ const app = express();
 const port = 3000;
 require('process');
 require('dotenv').config();
-console.log(process.env);
+//console.log(process.env);
 
 //airtable config
 //const KEY = process.env.PRIVATE_KEY
