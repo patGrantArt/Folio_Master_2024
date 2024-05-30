@@ -10,6 +10,7 @@
   "author": "\"Pat Grant 0431088169\"",
   "license": "ISC",
   "dependencies": {
+    "airtable": "^0.12.2",
     "dotenv": "^16.4.5",
     "express": "^4.19.2"
   }
