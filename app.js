@@ -25,6 +25,7 @@ const summaryFP = homeDirectory+"/public/summary.json";
 //AIRTABLE CONFIG
 const { all } = require('express/lib/application');
 const { folioLib } = require('./folioLib');
+const send = require('send');
 const KEY = process.env.PERSONAL_ACCESS_TOKEN;
 const BASE_ID = process.env.AIRTABLEBASE;
 const base = new Airtable({apiKey: KEY}).base(BASE_ID);
@@ -112,45 +113,38 @@ function sortData(md){
         thisEntry.name = element.fields.name;
         result.interviews.push(thisEntry);
     });
+    //sort story info
+    result.stories = [];
+    md.stories.forEach(element => {
+        let thisEntry = new Object;
+        thisEntry.id = element.fields.id;
+        thisEntry.airtableID = element.id;
+        thisEntry.name = element.fields.title;
+        result.stories.push(thisEntry);
+    });
 
-    // //sort entity cards
-    // //console.log(md.entcards);
-    // result.ent_Cards = [];
-    // md.entcards.forEach(element => {
-    //     let cardID = element.fields.ID;
-    //     let thisCard = new md;
-    //     thisCard.id = cardID;
-    //     thisCard.fields = element.fields
-    //     result.ent_Cards.push(thisCard);
-    // });
+    //sort entity info
+    result.entities = [];
+    md.entities.forEach(element => {
+        let thisEntry = new Object;
+        thisEntry.id = element.fields.id;
+        thisEntry.airtableID = element.id;
+        thisEntry.name = element.fields.name;
+        result.entities.push(thisEntry);
+    });
 
-    // //sort story cards
-    // result.stories = [];
-    // stintArray = md.storycards;
-    // stintArray.forEach(element => {
-    //     if(!element.fields.id){
-    //         console.log(element)
-    //     };
-    //     let cardID = element.fields.id;
-    //     let thisCard = new md;
-    //     thisCard.id = cardID;
-    //     thisCard.fields = element.fields;
-    //     result.stories.push(thisCard);
-    // });
-
-    // //sort publications list
-    // result.publications = [];
-    
-    // //console.log(md.publicationcards);
-    // let pubsArray = md.publicationcards
-    // //console.log(pubsArray);
-    // pubsArray.forEach( card => {
-    //     let cardID = card.fields.id;
-    //     let thisCard = new md;
-    //     thisCard.id = cardID;
-    //     thisCard.fields = card.fields;
-    //     result.publications.push(thisCard);
-    //});
+    //sort publications info
+    result.publications = [];
+    md.publications.forEach(element => {
+        let thisEntry = new Object;
+        thisEntry.id = element.fields.id;
+        thisEntry.airtableID = element.id;
+        thisEntry.title = element.fields.title;
+        thisEntry.author = element.fields.author;
+        result.publications.push(thisEntry);
+    });
+    console.log("==== publications packet ");
+    console.log(result.publications);
 
     console.log(`returning result object: ${result}`)
     return result    
@@ -164,7 +158,7 @@ async function refreshFromAirtable(){
     masterDataSet = await goGetFromAirtable();
     console.log(`====== SUCCESS - sorting data`);
     sortedDataSet = await sortData(masterDataSet);
-    console.log(sortedDataSet)
+    //console.log(sortedDataSet)
     console.log(`====== SUCCESS - handling datastream`)
     summaryJSON = await JSON.stringify(sortedDataSet);
     console.log(`====== SUCCESS - saving to local file`)
@@ -199,3 +193,16 @@ app.get('/summary', (req, res) => {
         }
     });
 });
+
+app.get('/record/:id', (req, res) => {
+    console.log(`pulling all data associated with the card`);
+    console.log(req.params);
+    let responseMessage = JSON.stringify("A message from the server");
+    res.send(responseMessage, function (err) {
+            if (err) {
+                console.log(err);            
+            } else {
+                console.log('==== success: Data Sent');
+            }
+    })
+})
