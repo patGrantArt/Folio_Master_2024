@@ -34,6 +34,7 @@ const { all } = require('express/lib/application');
 const { folioLib } = require('./folioLib');
 const send = require('send');
 const KEY = process.env.PERSONAL_ACCESS_TOKEN;
+console.log(`key = `, KEY);
 const BASE_ID = process.env.AIRTABLEBASE;
 const base = new Airtable({apiKey: KEY}).base(BASE_ID);
 if(base){console.log('Airtable config success')};
