@@ -3,6 +3,13 @@ console.log(`hello Will McLean`);
 //globals
 let summaryJSON;
 
+//list of table ID strings
+// const tableIDLookup = {
+//     stories: "",
+//     interviews: 
+
+// } 
+
 //modules setup
 const express = require('express');
 const app = express();
@@ -33,17 +40,6 @@ if(base){console.log('Airtable config success')};
 
 
 
-async function get(string){
-    base(string)
-        .select({view: "Grid view"})
-        .all()
-        .then(records => {
-            console.log(`ping`);
-            return records
-        }).catch(err => {
-            console.error(err)
-        })
-}
 
 
 async function goGetFromAirtable(){
@@ -101,9 +97,7 @@ function sortData(md){
     let result = new Object;
     result.timeStamp = md.timeStamp; 
 
-
-    console.log(md)
-    //sort long form cards
+    //sort interview
     result.interviews = [];
     interviewArray = md.interviews;
     interviewArray.forEach(element => {
@@ -143,10 +137,7 @@ function sortData(md){
         thisEntry.author = element.fields.author;
         result.publications.push(thisEntry);
     });
-    console.log("==== publications packet ");
-    console.log(result.publications);
-
-    console.log(`returning result object: ${result}`)
+    console.log(`returning sorted data object`)
     return result    
 }
 
@@ -194,15 +185,25 @@ app.get('/summary', (req, res) => {
     });
 });
 
+
+
+
 app.get('/record/:id', (req, res) => {
-    console.log(`pulling all data associated with the card`);
-    console.log(req.params);
-    let responseMessage = JSON.stringify("A message from the server");
-    res.send(responseMessage, function (err) {
-            if (err) {
-                console.log(err);            
-            } else {
-                console.log('==== success: Data Sent');
-            }
-    })
-})
+    console.log('pulling record', req.params);
+
+    base('stories').find(req.params.id, function(err, record) {
+        if (err) {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        console.log('record retrieved from airtable:', record.fields.id);
+        let json = JSON.stringify(record);
+        console.log('sending json');
+        res.send(json);
+    });
+});
+
+
+
