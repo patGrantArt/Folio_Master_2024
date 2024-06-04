@@ -34,7 +34,12 @@ async function getRecord(idString, typeString){
 
 function publishSingleRecord(object){   
     let rc = document.getElementById("recordContentContainer");
-    //console.log(object);
+    if(object.fields.file){
+        object.fields.file.forEach(item => {
+            rc.appendChild(image(item.url))
+        });
+        
+    }
     for(const key in object.fields){
         rc.appendChild(line(`---- KEY: ${key} -----------------------------`));
         rc.appendChild(line(object.fields[key]));
@@ -114,9 +119,11 @@ function recordContainer(){
     elem.style.backgroundColor = "yellow";
     elem.style.position = "fixed";
     elem.style.width = "70vw";
-    elem.style.top = "100px";
+    elem.style.top = "50px";
     elem.style.left = "15vw";
     elem.style.padding = "50px";
+    elem.style.height = "80vh";
+    elem.style.overflowY = "scroll";
     elem.style.visibility = "hidden";
     elem.innerText = "Wait a moment for the server to respond";
     let closeButton = document.createElement("button")
@@ -133,7 +140,7 @@ function record(label, airtableID){
     elem.class = "record";
     elem.dataset.airtableID = airtableID;
     elem.innerText = label;
-    elem.style.height = "40px";
+    elem.style.height = "auto";
     elem.style.cursor = "pointer";
     elem.style.margin = "5px";
     elem.style.padding = "5px";
@@ -145,7 +152,13 @@ function record(label, airtableID){
 function line(string){
     let elem = document.createElement("p");
     elem.innerText = string;
-    return elem;
+    return elem
+}
+function image(url){
+    let elem = document.createElement('img');
+    elem.src = url;
+    elem.style.width = "50vw";
+    return elem
 }
 
 //EVENT HANDLING
