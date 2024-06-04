@@ -11,94 +11,95 @@ async function init(){
 
 async function getData(instruction){
     console.log(`==== getData() is called with "${instruction}" argument`)
-
     let route = "/"+instruction;
     myResponse = await fetch(route);
-    //console.log(myResponse)
     data = await myResponse.json();
+    console.log(`SUCCESS!`)
     publishSummary(data); 
 };
 
-async function getRecord(string){
-    console.log(`==== going to airtable to get the record: "${string}" ===== `);
+async function getRecord(idString, typeString){
+    console.log(`==== going to airtable to get the record: "${idString} with the type ${typeString}" ===== `);
     document.getElementById("recordContainer").style.visibility = "visible";
     document.getElementById('recordContentContainer').innerText = "";
-    let route = "/record/"+string;
+    let route = `/record/${idString}/${typeString}`;
     let myResponse = await fetch(route);
     //console.log(myResponse)
     let jsonData = await myResponse;
     let recordObj = await jsonData.json();
     console.log("SUCCESS!");
-    console.log(recordObj.fields.title);
     publishSingleRecord(recordObj);
 }
 
 
-function publishSingleRecord(object){
-    console.log(`==============`);
-    console.log("publishing records");    
+function publishSingleRecord(object){   
     let rc = document.getElementById("recordContentContainer");
-    
-    console.log(object);
-    rc.appendChild(line(`RECORD WITH AIRTABLE ID === > ${object.id}`));
-    rc.appendChild(line(`==========================================`));
-    console.log(object.fields);
+    //console.log(object);
     for(const key in object.fields){
-        console.log(key);
-        console.log(object.fields[key]);
         rc.appendChild(line(`---- KEY: ${key} -----------------------------`));
         rc.appendChild(line(object.fields[key]));
     }
-
-
 }
 
 function publishSummary(object){
     console.log(`publishing summary`);
-    console.log(object);
+    //console.log(object);
     document.body.appendChild(header("INTERVIEWS TABLE"))
-    document.body.appendChild(container("interviewBox"))
+    document.body.appendChild(container("interviewBox", 'interviews'))
     object.interviews.forEach(element => {
-        console.log(element.id);
         document.getElementById("interviewBox").appendChild(record(element.id+" -- "+element.name, element.airtableID));
     });
 
     document.body.appendChild(header("STORIES TABLE"));
-    document.body.appendChild(container("storyBox"))
+    document.body.appendChild(container("storyBox", 'stories'));
     object.stories.forEach(element => {
-        console.log(element.id);
         document.getElementById("storyBox").appendChild(record(element.id+" -- "+element.name, element.airtableID));
     });
 
+    document.body.appendChild(header("IMAGES TABLE"));
+    document.body.appendChild(container("imageBox", 'images'));
+    object.images.forEach(element => {
+        document.getElementById("imageBox").appendChild(record(element.id, element.airtableID));
+    });
+
+
     document.body.appendChild(header("ENTITIES TABLE"));
-    document.body.appendChild(container("entitiesBox"))
-    console.log(object.entities);
+    document.body.appendChild(container("entitiesBox", 'entities'))
     object.entities.forEach(element => {
-        console.log(element.id);
         document.getElementById("entitiesBox").appendChild(record(element.id+" -- "+element.name, element.airtableID));
     });
 
     document.body.appendChild(header("PUBLICATIONS TABLE"));
-    document.body.appendChild(container("publicationsBox"))
-    console.log(object.publications);
+    document.body.appendChild(container("publicationsBox", 'publications'))
     object.publications.forEach(element => {
-        console.log(element.id);
         document.getElementById("publicationsBox").appendChild(record(element.id+" -- "+element.title+" by "+element.author, element.airtableID));
     });
+    document.body.appendChild(header("PLACES TABLE"));
+    document.body.appendChild(container("placeBox", 'places'));
+    object.places.forEach(element => {
+        document.getElementById("placeBox").appendChild(record(element.id+" -- "+element.place, element.airtableID));
+    });
+    document.body.appendChild(header("THEMES TABLE"));
+    document.body.appendChild(container("themeBox", 'themes'));
+    object.themes.forEach(element => {
+        document.getElementById("themeBox").appendChild(record(element.id, element.airtableID));
+    });
+    
 
 }
 
 
-//html element generators
+//HTML ELEMENT GENERATION
 function header(string){
     let elem = document.createElement('h1');
     elem.class = "heading"
     elem.innerText = string;
     return elem
 }
-function container(string){
+function container(string, type){
     let elem = document.createElement('div');
     elem.id = string;
+    elem.dataset.type = type;
     elem.style.backgroundColor = "grey";
     elem.style.display = "flex";
     elem.style.width = "1200px";
@@ -111,7 +112,7 @@ function recordContainer(){
     let elem = document.createElement('div');
     elem.id = "recordContainer";
     elem.style.backgroundColor = "yellow";
-    elem.style.position = "absolute";
+    elem.style.position = "fixed";
     elem.style.width = "70vw";
     elem.style.top = "100px";
     elem.style.left = "15vw";
@@ -127,7 +128,6 @@ function recordContainer(){
     elem.appendChild(rcc);
     return elem;
 }
-
 function record(label, airtableID){
     let elem = document.createElement('div');
     elem.class = "record";
@@ -142,21 +142,22 @@ function record(label, airtableID){
     elem.addEventListener("click", recordClick)
     return elem
 }
+function line(string){
+    let elem = document.createElement("p");
+    elem.innerText = string;
+    return elem;
+}
+
+//EVENT HANDLING
 function recordClick(e){
-    console.log(e.target.innerText);
-    console.log(e.target.dataset.airtableID)
-    getRecord(e.target.dataset.airtableID)
+    let requestID = e.target.dataset.airtableID
+    let requestType = e.target.parentElement.dataset.type;
+    getRecord(requestID, requestType);
 }
 function closeRecord(){
     console.log(`closing record`);
     document.getElementById('recordContainer').style.visibility = "hidden";
 
-}
-
-function line(string){
-    let elem = document.createElement("p");
-    elem.innerText = string;
-    return elem;
 }
 
 //function calls
