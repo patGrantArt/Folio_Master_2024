@@ -1,10 +1,18 @@
+//Folio Module for custom Scripts
+
+//CALL FUNCTIONS using the syntax "folio.function(arg)"
+//ACCESS OBJECTS using the syntax "folio.object.key" or "folio.object[KeyAsVar]"
+
+//TABLE ID - this is a list for finding the airtable native table ID to avoid using 
+//the table names like "stories" etc which are unstable. People can change those in 
+//airtable but the ID's can not be changes
+
+//MAKE SUMMARY - This function accepts "Master Data" object and strips out all of 
+//the fields except for the unique id's and one identifying string such as "name" 
+//or "title". This new is the global Var "summary" which is then served to the client
+
+
 module.exports = {
-    test: function (){
-        console.log(`The test works!`);
-    },
-    test2: function(){
-        console.log(`The SECOND test works!`);
-    },
     //list of table ID strings
     tableID : {
         stories: "tbl54wO3og2TZbNJg",

@@ -1,15 +1,33 @@
-console.log("What up, Will!?!");
+console.log("RYDER FORVS CNT!");
 
+//BASIC ASS CLIENT SIDE SCRIPT
+
+
+
+//GLOBAL
 let summary;
 
-
+//INITIALISATION FUNCTION  - called at foot of this script
 async function init(){
     console.log('initialising');
     document.body.appendChild(recordContainer());
-    summary = await getData("summary")
+    summary = await getSummary("summary")
 }
 
-async function getData(instruction){
+//EVENT HANDLING
+function recordClick(e){
+    let requestID = e.target.dataset.airtableID
+    let requestType = e.target.parentElement.dataset.type;
+    getRecord(requestID, requestType);
+}
+function closeRecord(){
+    console.log(`closing record`);
+    document.getElementById('recordContainer').style.visibility = "hidden";
+
+}
+
+//DATA REQUESTS
+async function getSummary(instruction){
     console.log(`==== getData() is called with "${instruction}" argument`)
     let route = "/"+instruction;
     myResponse = await fetch(route);
@@ -19,27 +37,27 @@ async function getData(instruction){
 };
 
 async function getRecord(idString, typeString){
-    console.log(`==== going to airtable to get the record: "${idString} with the type ${typeString}" ===== `);
+    console.log(`Airtable request for: ${idString} from the ${typeString} table`);
     document.getElementById("recordContainer").style.visibility = "visible";
     document.getElementById('recordContentContainer').innerText = "";
     let route = `/record/${idString}/${typeString}`;
     let myResponse = await fetch(route);
-    //console.log(myResponse)
     let jsonData = await myResponse;
     let recordObj = await jsonData.json();
     console.log("SUCCESS!");
     publishSingleRecord(recordObj);
 }
 
-
+//DATA HANDLING
 function publishSingleRecord(object){   
     let rc = document.getElementById("recordContentContainer");
+    //check for image handling
     if(object.fields.file){
         object.fields.file.forEach(item => {
             rc.appendChild(image(item.url))
-        });
-        
+        });  
     }
+    //loop through fields printing each as a key/value pair.
     for(const key in object.fields){
         rc.appendChild(line(`---- KEY: ${key} -----------------------------`));
         rc.appendChild(line(object.fields[key]));
@@ -48,7 +66,6 @@ function publishSingleRecord(object){
 
 function publishSummary(object){
     console.log(`publishing summary`);
-    //console.log(object);
     document.body.appendChild(header("INTERVIEWS TABLE"))
     document.body.appendChild(container("interviewBox", 'interviews'))
     object.interviews.forEach(element => {
@@ -89,10 +106,7 @@ function publishSummary(object){
     object.themes.forEach(element => {
         document.getElementById("themeBox").appendChild(record(element.id, element.airtableID));
     });
-    
-
 }
-
 
 //HTML ELEMENT GENERATION
 function header(string){
@@ -159,18 +173,6 @@ function image(url){
     elem.src = url;
     elem.style.width = "50vw";
     return elem
-}
-
-//EVENT HANDLING
-function recordClick(e){
-    let requestID = e.target.dataset.airtableID
-    let requestType = e.target.parentElement.dataset.type;
-    getRecord(requestID, requestType);
-}
-function closeRecord(){
-    console.log(`closing record`);
-    document.getElementById('recordContainer').style.visibility = "hidden";
-
 }
 
 //function calls
